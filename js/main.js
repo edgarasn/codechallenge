@@ -1,44 +1,45 @@
-class TextAreaSettings {
-    constructor(minRows, maxRows, id){
-        this.minRows = minRows;
+class TextAreaExtender {
+    constructor(minRows, maxRows, id) {
         this.maxRows = maxRows;
+        this.minRows = minRows;
         this.id = id;
     }
-}
 
-var defaultSettings = new TextAreaSettings(10, 20, "content");
+    extend() {
+        textarea.addEventListener("input", () => {            
+            if (this.isTextAreaEmpty(this.id)) {
+                this.setRows(this.id, this.minRows);
+            } else if (this.isTextRowsExceedsGivenRows(this.id, this.minRows)) {
+                this.setRows(this.id, this.maxRows);
+            } else if (this.isTextRowsExceedsGivenRows(this.id, this.maxRows)) {
+                this.setScrollBar(this.id);
+            }
+        });
+    }
 
-function handleChange() {    
-    updateTextArea(defaultSettings);
-}
+    getTextRowsCount(textAreaId) {
+        return document.getElementById(textAreaId).value.split("\n").length;
+    }
 
-function updateTextArea(defaultSettings) {    
-    var textRows = getTextRowsCount(defaultSettings.id);
+    isTextRowsExceedsGivenRows(textAreaId, givenRows) {
+        let textRows = this.getTextRowsCount(textAreaId);
+        return textRows > givenRows;
+    }
 
-    if (isTextAreaEmpty(defaultSettings.id)) {
-        setRows(defaultSettings.id, defaultSettings.minRows);
-    } else if (isTextRowsExceedsGivenRows(textRows, defaultSettings.minRows)) {
-        setRows(defaultSettings.id, defaultSettings.maxRows);
-    } else if (isTextRowsExceedsGivenRows(textRows, defaultSettings.maxRows)) {
-        setScrollBar(defaultSettings.id);
+    isTextAreaEmpty(textAreaId) {
+        return document.getElementById(textAreaId).value === '';
+    }
+
+    setRows(textAreaId, rows) {
+        document.getElementById(textAreaId).rows = rows;
+    }
+
+    setScrollBar(textAreaId) {
+        document.getElementById(textAreaId).style.overflowY = "scroll";
     }
 }
 
-function isTextRowsExceedsGivenRows(textRows, givenRows) {    
-    return textRows > givenRows;
-}
-
-function isTextAreaEmpty(textAreaId) {    
-    return document.getElementById(textAreaId).value == '';
-}
-function getTextRowsCount(textAreaId) {    
-    return document.getElementById(textAreaId).value.split("\n").length;
-}
-
-function setRows(textAreaId, rows) {
-    document.getElementById(textAreaId).rows = rows;
-}
-
-function setScrollBar(textAreaId) {
-    document.getElementById(textAreaId).style.overflowY = "scroll";
-}
+const textAreaId = 'textarea';
+const textBox = document.getElementById(textAreaId);
+let Extender = new TextAreaExtender(10, 20, textAreaId);
+textBox.addEventListener('input', Extender.extend());
