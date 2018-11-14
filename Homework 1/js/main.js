@@ -41,5 +41,5 @@ class TextAreaExtender {
 
 const textAreaId = 'textarea';
 const textBox = document.getElementById(textAreaId);
-let Extender = new TextAreaExtender(10, 20, textAreaId);
-textBox.addEventListener('input', Extender.extend());
+let extender = new TextAreaExtender(10, 20, textAreaId);
+textBox.addEventListener('input', extender.extend());
