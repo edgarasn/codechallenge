@@ -1,64 +1,105 @@
-class Loan {
-    amount: number;
-    year: number;
-    interestRates: number;
-    maxYear: number;
+abstract class BaseLoan {
+    protected _amount: number;
+    protected _maxAmount: number;
+    protected _year: number;
+    protected _maxYear: number;
+    protected _interestRates: number;
 
-    constructor(amount: number, year: number, interestRates: number, maxYear: number) {
-        this.amount = amount;
-        this.year = year;        
-        this.maxYear = maxYear;
-        this.interestRates = interestRates;
+    constructor(amount: number, year: number, interestRates: number, maxYear: number,  maxAmount: number) {
+        this._amount = amount;
+        this._year = year;
+        this._interestRates = interestRates;
+        this._maxYear = maxYear;
+        this._maxAmount = maxAmount;
     }
 
-    canLend() {
-        return this.year <= this.maxYear;
+    protected isYearRangeValid(): boolean {
+        return this._year <= this._maxYear;
+    }
+
+    protected isAmountRangeValid(): boolean {
+        return this._amount <= this._maxAmount;
+    }
+
+    abstract getMonthRates(): number[];
+    abstract canIssue(): boolean;
+}
+
+class Mortage extends BaseLoan {
+    private readonly _minAmountPerMonth = 500;
+    protected _salary: number;
+    protected _kids: number;
+
+    constructor(amount: number, year: number, salary: number, kids: number) {
+        super(amount, year, 2, 30,0);
+        this._salary = salary;
+        this._kids = kids;
+    }
+
+    private isSalaryEnoughtForLiving(): boolean {
+        return this._salary / this._kids > this._minAmountPerMonth;
+    }
+
+    private calculateMaxAmount(): void{
+        this._maxAmount =  200000 //TODO impelement
+    }
+
+    canIssue(): boolean {
+        this.calculateMaxAmount();
+
+        return this.isYearRangeValid() && 
+        this.isAmountRangeValid() && 
+        this.isSalaryEnoughtForLiving();
+    }
+
+    getMonthRates():number[]{
+        if(this.canIssue()){
+            return [100,300,400]
+        }
+        return [];
     }
 }
 
+class ConsumerCredit extends BaseLoan {
+    constructor(price: number, year: number, interestRates: number) {
+        super(price, year, interestRates, 5, 10000);
+    }
 
-class HousingLoan extends Loan {
-    salary: number;
-    kids: number;
+    canIssue(): boolean {
+        return this.isYearRangeValid() && this.isAmountRangeValid();
+    }
 
+    getMonthRates():number[]{
+        if(this.canIssue()){
+            return [];
+        }
+        return [];
+    }
+}
+
+class InstantLoan extends BaseLoan {
     constructor(price: number, year: number) {
-        super(price, year, 2, 3);
+        super(price, year, 20, 2, 5000);
     }
 
-    canLend() {
-        super.canLend();
-
-        return true;
-    }
-}
-
-class InstantLoan extends Loan {
-    maxAmount: number = 5000;
-
-    constructor(amount: number, year: number) { 
-        super(amount, year, 20, 2); 
+    canIssue(): boolean {
+        return this.isYearRangeValid() && this.isAmountRangeValid();
     }
 
-    canLend() {
-        super.canLend();
-        return true;
+    getMonthRates():number[]{
+        if(this.canIssue()){
+            return [];
+        }
+        return [];
     }
 }
 
-class ConsumerCredit extends Loan {
-    maxAmount: number = 10000;
+var houseLoan = new Mortage(100000, 20, 3000, 5);
+console.log(houseLoan.canIssue());
+console.log(houseLoan.getMonthRates());
 
-    constructor(price: number, year: number, interestRates: number) { 
-        super(price, year, interestRates, 5); 
-    }
+var credit = new ConsumerCredit(4000, 1, 40);
+console.log(credit.canIssue());
 
-    canLend() {
-        super.canLend();
-
-        return true;
-    }
-}
-
-
-var cc = new ConsumerCredit(100,5,10);
-console.log(cc.canLend());
+var instantLoan = new InstantLoan(3000, 1);
+console.log(instantLoan.canIssue());

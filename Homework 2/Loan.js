@@ -1,62 +1,97 @@
-var __extends = this.__extends || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
-};
-var Loan = (function () {
-    function Loan(amount, year, interestRates, maxYear) {
-        this.amount = amount;
-        this.year = year;
-        this.maxYear = maxYear;
-        this.interestRates = interestRates;
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
     }
-    Loan.prototype.canLend = function () {
-        return this.year <= this.maxYear;
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
-    return Loan;
 })();
-
-var HousingLoan = (function (_super) {
-    __extends(HousingLoan, _super);
-    function HousingLoan(price, year) {
-        _super.call(this, price, year, 2, 3);
+var BaseLoan = /** @class */ (function () {
+    function BaseLoan(amount, year, interestRates, maxYear, maxAmount) {
+        this._amount = amount;
+        this._year = year;
+        this._interestRates = interestRates;
+        this._maxYear = maxYear;
+        this._maxAmount = maxAmount;
     }
-    HousingLoan.prototype.canLend = function () {
-        _super.prototype.canLend.call(this);
-
-        return true;
+    BaseLoan.prototype.isYearRangeValid = function () {
+        return this._year <= this._maxYear;
     };
-    return HousingLoan;
-})(Loan);
-
-var InstantLoan = (function (_super) {
-    __extends(InstantLoan, _super);
-    function InstantLoan(amount, year) {
-        _super.call(this, amount, year, 20, 2);
-        this.maxAmount = 5000;
+    BaseLoan.prototype.isAmountRangeValid = function () {
+        return this._amount <= this._maxAmount;
+    };
+    return BaseLoan;
+}());
+var Mortage = /** @class */ (function (_super) {
+    __extends(Mortage, _super);
+    function Mortage(amount, year, salary, kids) {
+        var _this = _super.call(this, amount, year, 2, 30, 0) || this;
+        _this._minAmountPerMonth = 500;
+        _this._salary = salary;
+        _this._kids = kids;
+        return _this;
     }
-    InstantLoan.prototype.canLend = function () {
-        _super.prototype.canLend.call(this);
-        return true;
+    Mortage.prototype.isSalaryEnoughtForLiving = function () {
+        return this._salary / this._kids > this._minAmountPerMonth;
     };
-    return InstantLoan;
-})(Loan);
-
-var ConsumerCredit = (function (_super) {
+    Mortage.prototype.calculateMaxAmount = function () {
+        this._maxAmount = 200000; //TODO impelement
+    };
+    Mortage.prototype.canIssue = function () {
+        this.calculateMaxAmount();
+        return this.isYearRangeValid() &&
+            this.isAmountRangeValid() &&
+            this.isSalaryEnoughtForLiving();
+    };
+    Mortage.prototype.getMonthRates = function () {
+        if (this.canIssue()) {
+            return [100, 300, 400];
+        }
+        return [];
+    };
+    return Mortage;
+}(BaseLoan));
+var ConsumerCredit = /** @class */ (function (_super) {
     __extends(ConsumerCredit, _super);
     function ConsumerCredit(price, year, interestRates) {
-        _super.call(this, price, year, interestRates, 5);
-        this.maxAmount = 10000;
+        return _super.call(this, price, year, interestRates, 5, 10000) || this;
     }
-    ConsumerCredit.prototype.canLend = function () {
-        _super.prototype.canLend.call(this);
-
-        return true;
+    ConsumerCredit.prototype.canIssue = function () {
+        return this.isYearRangeValid() && this.isAmountRangeValid();
+    };
+    ConsumerCredit.prototype.getMonthRates = function () {
+        if (this.canIssue()) {
+            return [];
+        }
+        return [];
     };
     return ConsumerCredit;
-})(Loan);
-debugger;
-
-var cc = new ConsumerCredit(100, 5, 10);
-console.log(cc.canLend());
+}(BaseLoan));
+var InstantLoan = /** @class */ (function (_super) {
+    __extends(InstantLoan, _super);
+    function InstantLoan(price, year) {
+        return _super.call(this, price, year, 20, 2, 5000) || this;
+    }
+    InstantLoan.prototype.canIssue = function () {
+        return this.isYearRangeValid() && this.isAmountRangeValid();
+    };
+    InstantLoan.prototype.getMonthRates = function () {
+        if (this.canIssue()) {
+            return [];
+        }
+        return [];
+    };
+    return InstantLoan;
+}(BaseLoan));
+var houseLoan = new Mortage(100000, 20, 3000, 5);
+console.log(houseLoan.canIssue());
+console.log(houseLoan.getMonthRates());
+var credit = new ConsumerCredit(4000, 1, 40);
+console.log(credit.canIssue());
+var instantLoan = new InstantLoan(3000, 1);
+console.log(instantLoan.canIssue());
