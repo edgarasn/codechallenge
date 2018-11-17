@@ -13,6 +13,17 @@ abstract class BaseLoan {
         this._maxAmount = maxAmount;
     }
 
+    public calculateMonthRates(): number[]{
+        if(this.canIssue()){
+            let monthRate = this._amount / (this._year * 12);
+            let monthRateWithInterest = monthRate + ((monthRate/100)*this._interestRates);
+            return [monthRateWithInterest];
+        }
+        return [];
+    }
+
+    abstract canIssue(): boolean;
+
     protected isYearRangeValid(): boolean {
         return this._year <= this._maxYear;
     }
@@ -20,9 +31,6 @@ abstract class BaseLoan {
     protected isAmountRangeValid(): boolean {
         return this._amount <= this._maxAmount;
     }
-
-    abstract getMonthRates(): number[];
-    abstract canIssue(): boolean;
 }
 
 class Mortage extends BaseLoan {
@@ -68,13 +76,6 @@ class ConsumerCredit extends BaseLoan {
     canIssue(): boolean {
         return this.isYearRangeValid() && this.isAmountRangeValid();
     }
-
-    getMonthRates():number[]{
-        if(this.canIssue()){
-            return [];
-        }
-        return [];
-    }
 }
 
 class InstantLoan extends BaseLoan {
@@ -85,21 +86,16 @@ class InstantLoan extends BaseLoan {
     canIssue(): boolean {
         return this.isYearRangeValid() && this.isAmountRangeValid();
     }
-
-    getMonthRates():number[]{
-        if(this.canIssue()){
-            return [];
-        }
-        return [];
-    }
 }
 
 var houseLoan = new Mortage(100000, 20, 3000, 5);
 console.log(houseLoan.canIssue());
-console.log(houseLoan.getMonthRates());
+// console.log(houseLoan.calculateMonthRates());
 
 var credit = new ConsumerCredit(4000, 1, 40);
 console.log(credit.canIssue());
+// console.log(credit.calculateMonthRates());
 
 var instantLoan = new InstantLoan(3000, 1);
 console.log(instantLoan.canIssue());
+console.log(instantLoan.calculateMonthRates());

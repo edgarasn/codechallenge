@@ -19,6 +19,12 @@ var BaseLoan = /** @class */ (function () {
         this._maxYear = maxYear;
         this._maxAmount = maxAmount;
     }
+    BaseLoan.prototype.calculateMonthRates = function () {
+        this.canIssue();
+        var monthRate = this._amount / (this._year * 12);
+        var monthRateWithInterest = monthRate + ((monthRate / 100) * this._interestRates);
+        return [monthRateWithInterest];
+    };
     BaseLoan.prototype.isYearRangeValid = function () {
         return this._year <= this._maxYear;
     };
@@ -64,12 +70,6 @@ var ConsumerCredit = /** @class */ (function (_super) {
     ConsumerCredit.prototype.canIssue = function () {
         return this.isYearRangeValid() && this.isAmountRangeValid();
     };
-    ConsumerCredit.prototype.getMonthRates = function () {
-        if (this.canIssue()) {
-            return [];
-        }
-        return [];
-    };
     return ConsumerCredit;
 }(BaseLoan));
 var InstantLoan = /** @class */ (function (_super) {
@@ -80,18 +80,14 @@ var InstantLoan = /** @class */ (function (_super) {
     InstantLoan.prototype.canIssue = function () {
         return this.isYearRangeValid() && this.isAmountRangeValid();
     };
-    InstantLoan.prototype.getMonthRates = function () {
-        if (this.canIssue()) {
-            return [];
-        }
-        return [];
-    };
     return InstantLoan;
 }(BaseLoan));
 var houseLoan = new Mortage(100000, 20, 3000, 5);
 console.log(houseLoan.canIssue());
-console.log(houseLoan.getMonthRates());
+// console.log(houseLoan.calculateMonthRates());
 var credit = new ConsumerCredit(4000, 1, 40);
 console.log(credit.canIssue());
+// console.log(credit.calculateMonthRates());
 var instantLoan = new InstantLoan(3000, 1);
 console.log(instantLoan.canIssue());
+console.log(instantLoan.calculateMonthRates());
