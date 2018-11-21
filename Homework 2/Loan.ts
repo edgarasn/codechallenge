@@ -22,7 +22,9 @@ abstract class BaseLoan {
         return [];
     }
 
-    abstract canIssue(): boolean;
+    public canIssue(): boolean{
+        return this.isYearRangeValid() && this.isAmountRangeValid();
+    }
 
     protected isYearRangeValid(): boolean {
         return this._year <= this._maxYear;
@@ -59,32 +61,17 @@ class Mortage extends BaseLoan {
         this.isAmountRangeValid() && 
         this.isSalaryEnoughtForLiving();
     }
-
-    getMonthRates():number[]{
-        if(this.canIssue()){
-            return [100,300,400]
-        }
-        return [];
-    }
 }
 
 class ConsumerCredit extends BaseLoan {
     constructor(price: number, year: number, interestRates: number) {
         super(price, year, interestRates, 5, 10000);
     }
-
-    canIssue(): boolean {
-        return this.isYearRangeValid() && this.isAmountRangeValid();
-    }
 }
 
 class InstantLoan extends BaseLoan {
     constructor(price: number, year: number) {
         super(price, year, 20, 2, 5000);
-    }
-
-    canIssue(): boolean {
-        return this.isYearRangeValid() && this.isAmountRangeValid();
     }
 }
 

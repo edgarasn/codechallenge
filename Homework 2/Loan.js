@@ -20,10 +20,15 @@ var BaseLoan = /** @class */ (function () {
         this._maxAmount = maxAmount;
     }
     BaseLoan.prototype.calculateMonthRates = function () {
-        this.canIssue();
-        var monthRate = this._amount / (this._year * 12);
-        var monthRateWithInterest = monthRate + ((monthRate / 100) * this._interestRates);
-        return [monthRateWithInterest];
+        if (this.canIssue()) {
+            var monthRate = this._amount / (this._year * 12);
+            var monthRateWithInterest = monthRate + ((monthRate / 100) * this._interestRates);
+            return [monthRateWithInterest];
+        }
+        return [];
+    };
+    BaseLoan.prototype.canIssue = function () {
+        return this.isYearRangeValid() && this.isAmountRangeValid();
     };
     BaseLoan.prototype.isYearRangeValid = function () {
         return this._year <= this._maxYear;
@@ -54,12 +59,6 @@ var Mortage = /** @class */ (function (_super) {
             this.isAmountRangeValid() &&
             this.isSalaryEnoughtForLiving();
     };
-    Mortage.prototype.getMonthRates = function () {
-        if (this.canIssue()) {
-            return [100, 300, 400];
-        }
-        return [];
-    };
     return Mortage;
 }(BaseLoan));
 var ConsumerCredit = /** @class */ (function (_super) {
@@ -67,9 +66,6 @@ var ConsumerCredit = /** @class */ (function (_super) {
     function ConsumerCredit(price, year, interestRates) {
         return _super.call(this, price, year, interestRates, 5, 10000) || this;
     }
-    ConsumerCredit.prototype.canIssue = function () {
-        return this.isYearRangeValid() && this.isAmountRangeValid();
-    };
     return ConsumerCredit;
 }(BaseLoan));
 var InstantLoan = /** @class */ (function (_super) {
@@ -77,9 +73,6 @@ var InstantLoan = /** @class */ (function (_super) {
     function InstantLoan(price, year) {
         return _super.call(this, price, year, 20, 2, 5000) || this;
     }
-    InstantLoan.prototype.canIssue = function () {
-        return this.isYearRangeValid() && this.isAmountRangeValid();
-    };
     return InstantLoan;
 }(BaseLoan));
 var houseLoan = new Mortage(100000, 20, 3000, 5);
